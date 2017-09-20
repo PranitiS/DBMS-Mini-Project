@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.InputMismatchException;
-import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Scanner;
@@ -70,15 +69,15 @@ public class Frontend
 	private JPanel sloginpanel;
 	private JTextArea ts_id;
 	private JTextArea ts_pass;
-	private JButton sloginb;
-	private JFrame studentframe;
-	private JPanel studentpanel;
+	private JButton sloginb, domainb, cancel_10;
+	private JFrame studentframe, domainframe, sviewframe;
+	private JPanel studentpanel, domainpanel, sviewpanel;
 	private JButton OngoingCourses;
 	private JButton EnrollForCourse;
 	private JButton CompletedCourses;
 	private JButton plogout;
 	private JButton slogout;
-	private JButton initial_back;
+	private JButton initial_back, enrollb, cancel_11;
 	private JButton pchangep, schangep;
 	private JFrame addcourseframe;
 	private JPanel addcoursepanel;
@@ -90,11 +89,11 @@ public class Frontend
 	private JTextArea tppass_new, tppass_new_re,sppass_new, sppass_new_re  ;
 	private JComboBox domains, grades, courses, students;
 	private JButton viewstudents;
-	String PID, SID, cdomain;
+	String PID, SID;
 	
 	static final String DB_URL = "jdbc:mysql://127.0.0.1:3306/Student_Course_Management";
 	static final String USER = "root";
-	static final String PASS = "Praniti123!";
+	static final String PASS = "Kshitija97";
 	public static void main(String[] args) {
 		Connection conn = null;
 		Statement stmt = null;
@@ -451,17 +450,17 @@ public class Frontend
 		tc_name.setAlignmentX(Component.CENTER_ALIGNMENT);
 		tc_name.setSize(400, 50);
 		
-//		tdomain = new JTextArea();                        //make domain scroll if possible
-//		tdomain.setFont(new Font("Serif",Font.BOLD,14));
-//		tdomain.setLineWrap(true);
-//		tdomain.setWrapStyleWord(true);
-//		tdomain.setAlignmentX(Component.CENTER_ALIGNMENT);
-		//String cdomain;
+		tdomain = new JTextArea();                        //make domain scroll if possible
+		tdomain.setFont(new Font("Serif",Font.BOLD,14));
+		tdomain.setLineWrap(true);
+		tdomain.setWrapStyleWord(true);
+		tdomain.setAlignmentX(Component.CENTER_ALIGNMENT);
+		
 		String[] domain_types = { "Computer", "Electronics", "Languages", "Humanities"};
 		domains = new JComboBox(domain_types);
 		domains.addActionListener(new ActionListener()	{
 			public void actionPerformed(ActionEvent e)	{
-				cdomain = (String)domains.getSelectedItem();
+				String cdomain = (String)domains.getSelectedItem();
 				tdomain.setText(cdomain);
 			}
 		});
@@ -516,8 +515,8 @@ public class Frontend
 		addcoursepanel.add(tc_name);
 		addcoursepanel.add(Box.createRigidArea(new Dimension(0,20)));
 		addcoursepanel.add(domain);
-//		addcoursepanel.add(Box.createRigidArea(new Dimension(0,10)));
-//		addcoursepanel.add(tdomain);
+		addcoursepanel.add(Box.createRigidArea(new Dimension(0,10)));
+		addcoursepanel.add(tdomain);
 		addcoursepanel.add(Box.createRigidArea(new Dimension(0,10)));
 		addcoursepanel.add(domains);
 		addcoursepanel.add(Box.createRigidArea(new Dimension(0,10)));
@@ -536,7 +535,7 @@ public class Frontend
 		pviewframe.setFont(new Font("SansSerif", Font.BOLD, 35));
 		pviewframe.setTitle("LOG-IN PAGE");
 		pviewframe.setForeground(UIManager.getColor("Button.darkShadow"));
-		pviewframe.setSize(new Dimension(400,500));
+		pviewframe.setSize(new Dimension(400,100));
 		pviewframe.setResizable(false);
 		pviewframe.setLocationRelativeTo(null);
 		pviewframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -591,8 +590,11 @@ public class Frontend
 				prof_choose_course_todelete();}});
 		
 		pviewpanel.add(p_c_table);
+		pviewpanel.add(Box.createRigidArea(new Dimension(0,20)));
 		pviewpanel.add(gradeb);
+		pviewpanel.add(Box.createRigidArea(new Dimension(0,20)));
 		pviewpanel.add(deletecb);
+		pviewpanel.add(Box.createRigidArea(new Dimension(0,20)));
 		pviewpanel.add(cancel_6);
 		pviewframe.add(pviewpanel);
 		pviewframe.setVisible(true);
@@ -614,63 +616,6 @@ public class Frontend
 		gradepanel.setLayout(new BoxLayout(gradepanel,BoxLayout.PAGE_AXIS));
 		gradepanel.setAlignmentX(Component.TOP_ALIGNMENT);
 		
-		String[] grade = { "A+", "A-", "B+", "B-", "C+", "C-", "D+", "D-", "F"};
-		grades = new JComboBox(grade);
-		
-		Connection conn = null;
-		Statement stmt = null;
-		try {
-			conn = DriverManager.getConnection(DB_URL,USER,PASS);
-			stmt = conn.createStatement();
-		String query2 = "select * from Courses where P_id=" + PID;
-		ResultSet rs1 = stmt.executeQuery(query2);
-		String[] CName = new String[20];
-		
-		int i=0;
-		while(rs1.next())
-		  {
-			  CName[i]=(rs1.getString("C_Name"));
-			  i++;
-		  }
-		courses = new JComboBox(CName);
-		String selected_CName = courses.getSelectedItem().toString();
-		}
-		catch(Exception e1)
-		{
-			System.out.println(e1);
-		}
-		
-		viewstudents = new JButton("View Students");
-		viewstudents.setAlignmentX(Component.CENTER_ALIGNMENT);
-		viewstudents.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e)	{
-				Connection conn = null;
-				Statement stmt = null;
-				try {
-					conn = DriverManager.getConnection(DB_URL,USER,PASS);
-					stmt = conn.createStatement();
-				String selected_CName = courses.getSelectedItem().toString();
-				String query3 = "select s.S_id, s.S_name, c.Grade from Student s, Course_Taken c, Courses co where s.S_id = c.S_id and co.C_Name=\"" + selected_CName + "\"";						  
-				  ResultSet rs2 = stmt.executeQuery(query3); int i=0;
-				  String[] SName = new String[20];
-				  while(rs2.next())
-				  {
-					  String sid = rs2.getString("S_id");
-					  SName[i]= rs2.getString("S_name");
-					  String sgrade = rs2.getString("Grade");
-					  System.out.println(sid + " " + SName[i] + " " + sgrade);
-					  i++;
-				  }
-				  students = new JComboBox(SName);
-					gradepanel.add(students);
-				}
-				catch(Exception e1)
-				{
-					System.out.println(e1);
-				}
-			}
-		});
-		
 		proceedgradeb = new JButton("PROCEED GRADING");
 		proceedgradeb.setAlignmentX(Component.CENTER_ALIGNMENT);
 		proceedgradeb.addActionListener(new ActionListener() {
@@ -689,14 +634,15 @@ public class Frontend
 		
 		//define 3 scrolls
 		//ongoingpanel.add(Scroll_name_course);
+		gradepanel.add(Box.createRigidArea(new Dimension(0,20)));
 		//ongoingpanel.add(Scroll_name_student);
+		gradepanel.add(Box.createRigidArea(new Dimension(0,20)));
 		//ongoingpanel.add(Scroll_name_grade);
+		gradepanel.add(Box.createRigidArea(new Dimension(0,20)));
 		gradepanel.add(proceedgradeb);
+		gradepanel.add(Box.createRigidArea(new Dimension(0,20)));
 		gradepanel.add(cancel_7);
-		gradepanel.add(grades);
-		gradepanel.add(courses);		
-		gradepanel.add(viewstudents);
-//		gradepanel.add(students);
+		
 		gradeframe.add(gradepanel);
 		gradeframe.setVisible(true);
 	}
@@ -721,7 +667,7 @@ public class Frontend
 		pdeleteb.setAlignmentX(Component.CENTER_ALIGNMENT);
 		pdeleteb.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {	
-				//delete the course 
+				//delete the course from database (i.e change status to past)
 				JOptionPane.showMessageDialog(null,"Course Deleted" , "Action Complete", JOptionPane.INFORMATION_MESSAGE);
 				pdeleteframe.setVisible(false);
 				p_view_course();}});
@@ -735,7 +681,9 @@ public class Frontend
 		
 		//define 1 scroll
 		//sdeletepanel.add(Scroll_name_course);
+		pdeletepanel.add(Box.createRigidArea(new Dimension(0,20)));
 		pdeletepanel.add(sdeleteb);
+		pdeletepanel.add(Box.createRigidArea(new Dimension(0,20)));
 		pdeletepanel.add(cancel_9);
 		
 		pdeleteframe.add(pdeletepanel);
@@ -774,7 +722,9 @@ public class Frontend
 		
 		//define a table to display the courses
 		//ongoingpanel.add(Table_name);
+		ongoingpanel.add(Box.createRigidArea(new Dimension(0,20)));
 		ongoingpanel.add(unenrollb);
+		ongoingpanel.add(Box.createRigidArea(new Dimension(0,20)));
 		ongoingpanel.add(cancel_4);
 		
 		ongoingframe.add(ongoingpanel);
@@ -806,6 +756,7 @@ public class Frontend
 		
 		//define a table to display the courses
 		//ongoingpanel.add(Table_name);
+		completedpanel.add(Box.createRigidArea(new Dimension(0,20)));
 		completedpanel.add(cancel_5);
 		
 		completedframe.add(completedpanel);
@@ -832,7 +783,7 @@ public class Frontend
 		sdeleteb.setAlignmentX(Component.CENTER_ALIGNMENT);
 		sdeleteb.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {	
-				//delete the course 
+				//delete the course from database course-taken
 				JOptionPane.showMessageDialog(null,"Un-enrolled" , "Action Complete", JOptionPane.INFORMATION_MESSAGE);
 				sdeleteframe.setVisible(false);
 				ongoing_courses();}});
@@ -844,9 +795,15 @@ public class Frontend
 				sdeleteframe.setVisible(false);
 				ongoing_courses();}});
 		
+		JLabel list = new JLabel("Courses currently you have undertaken:");
+		list.setAlignmentX(Component.CENTER_ALIGNMENT);
+		sdeletepanel.add(list);
+		sdeletepanel.add(Box.createRigidArea(new Dimension(0,20)));
 		//define 1 scroll
 		//sdeletepanel.add(Scroll_name_course);
+		sdeletepanel.add(Box.createRigidArea(new Dimension(0,20)));
 		sdeletepanel.add(sdeleteb);
+		sdeletepanel.add(Box.createRigidArea(new Dimension(0,20)));
 		sdeletepanel.add(cancel_8);
 		
 		sdeleteframe.add(sdeletepanel);
@@ -855,10 +812,101 @@ public class Frontend
 	
 	public void choose_domain() {
 		//choose domain (drop down scroll implementation), okay button, back button
+		studentframe.setVisible(false);
+		domainframe = new JFrame();
+		domainframe.setFont(new Font("SansSerif", Font.BOLD, 35));
+		domainframe.setTitle("CHOOSE A DOMAIN");
+		domainframe.setForeground(UIManager.getColor("Button.darkShadow"));
+		domainframe.setSize(new Dimension(400,350));
+		domainframe.setResizable(false);
+		domainframe.setLocationRelativeTo(null);
+		domainframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		domainpanel = new JPanel();
+		domainpanel.setLayout(new BoxLayout(domainpanel,BoxLayout.PAGE_AXIS));
+		domainpanel.setAlignmentX(Component.TOP_ALIGNMENT);
+		
+		JLabel domain = new JLabel("Choose a Domain:");
+		domain.setAlignmentX(Component.CENTER_ALIGNMENT);
+		
+		domainb = new JButton("PROCEED SEARCHING FOR COURSES IN THAT DOMAIN");
+		domainb.setAlignmentX(Component.CENTER_ALIGNMENT);
+		domainb.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {	
+				domainframe.setVisible(false);
+				s_view_course();}});
+		
+		cancel_10 = new JButton("BACK");
+		cancel_10.setAlignmentX(Component.CENTER_ALIGNMENT);
+		cancel_10.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pdeleteframe.setVisible(false);
+				Stud_frame();}});
+		
+		domainpanel.add(domain);
+		domainpanel.add(Box.createRigidArea(new Dimension(0,20)));
+		//define 1 scroll
+		//domainpanel.add(Scroll_name_course);
+		domainpanel.add(Box.createRigidArea(new Dimension(0,20)));
+		domainpanel.add(domainb);
+		domainpanel.add(Box.createRigidArea(new Dimension(0,20)));
+		domainpanel.add(cancel_10);
+		
+		domainframe.add(domainpanel);
+		domainframe.setVisible(true);
 	}
 	
 	public void s_view_course() {
-		//view queried courses, enroll button, back button 
+		//view queried courses, scroll with names, enroll button, back button 
+		domainframe.setVisible(false);
+		sviewframe = new JFrame();
+		sviewframe.setFont(new Font("SansSerif", Font.BOLD, 35));
+		sviewframe.setTitle("COURSES THAT MATCH YOUR CHOICE");
+		sviewframe.setForeground(UIManager.getColor("Button.darkShadow"));
+		sviewframe.setSize(new Dimension(400,500));
+		sviewframe.setResizable(false);
+		sviewframe.setLocationRelativeTo(null);
+		sviewframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		sviewpanel = new JPanel();
+		sviewpanel.setLayout(new BoxLayout(sviewpanel,BoxLayout.PAGE_AXIS));
+		sviewpanel.setAlignmentX(Component.TOP_ALIGNMENT);
+		
+		JLabel found = new JLabel("Related Courses:");
+		found.setAlignmentX(Component.CENTER_ALIGNMENT);
+		JLabel choice = new JLabel("Choose the course to enroll in:");
+		choice.setAlignmentX(Component.CENTER_ALIGNMENT);
+		
+		enrollb = new JButton("PROCEED ENROLLING");
+		enrollb.setAlignmentX(Component.CENTER_ALIGNMENT);
+		enrollb.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {	
+				sviewframe.setVisible(false);
+				Stud_frame();}});
+		
+		cancel_11 = new JButton("BACK");
+		cancel_11.setAlignmentX(Component.CENTER_ALIGNMENT);
+		cancel_11.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sviewframe.setVisible(false);
+				Stud_frame();}});
+		
+		sviewpanel.add(found);
+		sviewpanel.add(Box.createRigidArea(new Dimension(0,20)));
+		//define one table with course details
+		//sviewpanel.add(Table_name);
+		sviewpanel.add(Box.createRigidArea(new Dimension(0,20)));
+		sviewpanel.add(choice);
+		sviewpanel.add(Box.createRigidArea(new Dimension(0,20)));
+		//define 1 scroll
+		//sviewpanel.add(Scroll_name_course);
+		sviewpanel.add(Box.createRigidArea(new Dimension(0,20)));
+		sviewpanel.add(enrollb);
+		sviewpanel.add(Box.createRigidArea(new Dimension(0,20)));
+		sviewpanel.add(cancel_11);
+		
+		sviewframe.add(sviewpanel);
+		sviewframe.setVisible(true);
 	}
 	
 	public void p_change_password(){
@@ -902,13 +950,8 @@ public class Frontend
 				//check if password entered in both slots is the same 
 				//update password in database
 				String s1 = tppass_new.getText();
-				String s2 = tppass_new_re.getText();
+				String s2 = tppass_new.getText();
 				if(s1.equals(s2)) {
-					if((s1.length())<3 || (s1.length()>15))
-						JOptionPane.showMessageDialog(null,"Password length should be greater than 3 and less than 15" , "Authentication", JOptionPane.INFORMATION_MESSAGE);
-					else {
-					System.out.println(s1);
-					System.out.println(s2);
 					Connection conn = null;
 					Statement stmt = null;
 					try {
@@ -924,7 +967,7 @@ public class Frontend
 				JOptionPane.showMessageDialog(null,"Succesful" , "Authentication", JOptionPane.INFORMATION_MESSAGE);
 				pcpframe.setVisible(false);
 				Prof_frame();
-				}}
+				}
 				else JOptionPane.showMessageDialog(null,"Not Succesful" , "Authentication", JOptionPane.INFORMATION_MESSAGE);
 			}});    
 		cancel_2 = new JButton("BACK");
@@ -991,11 +1034,8 @@ public class Frontend
 				//check if password entered in both slots is the same 
 				//update password in database
 				String s1 = sppass_new.getText();
-				String s2 = sppass_new_re.getText();
+				String s2 = sppass_new.getText();
 				if(s1.equals(s2)) {
-					if((s1.length())<3 || (s1.length()>15))	
-						JOptionPane.showMessageDialog(null,"Password length should be greater than 3 and less than 15" , "Authentication", JOptionPane.INFORMATION_MESSAGE);
-					else	{
 					Connection conn = null;
 					Statement stmt = null;
 					try {
@@ -1011,7 +1051,7 @@ public class Frontend
 				JOptionPane.showMessageDialog(null,"Succesful" , "Authentication", JOptionPane.INFORMATION_MESSAGE);
 				scpframe.setVisible(false);
 				Stud_frame();
-				}}
+				}
 				else JOptionPane.showMessageDialog(null,"Password does not match" , "Authentication", JOptionPane.INFORMATION_MESSAGE);
 			}});    
 		cancel_3 = new JButton("BACK");
